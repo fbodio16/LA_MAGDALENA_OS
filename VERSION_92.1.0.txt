@@ -1,0 +1,2 @@
+LA MAGDALENA OS v92.1.0
+Release para publicación Vercel. ETc rotulada de forma inequívoca, simulador con volumen/horas y bloque productivo sin estados ambiguos.

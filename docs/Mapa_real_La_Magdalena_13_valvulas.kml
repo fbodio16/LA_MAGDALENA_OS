@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document id="document">
+	<name>Proyecto de mapa sin título</name>
+	<gx:CascadingStyle kml:id="__managed_style_0663332CA940B5E194B8_normal">
+		<styleUrl>https://earth.google.com/balloon_components/base/1.1.0.0/card_template.kml#main</styleUrl>
+		<Style>
+			<IconStyle>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>2</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<gx:CascadingStyle kml:id="__managed_style_0663332CA940B5E194B8_highlight">
+		<styleUrl>https://earth.google.com/balloon_components/base/1.1.0.0/card_template.kml#main</styleUrl>
+		<Style>
+			<IconStyle>
+				<scale>1.2</scale>
+				<Icon>
+					<href>https://earth.google.com/earth/document/icon?color=1976d2&amp;id=2000&amp;scale=4</href>
+				</Icon>
+				<hotSpot x="64" y="128" xunits="pixels" yunits="insetPixels"/>
+			</IconStyle>
+			<LabelStyle>
+			</LabelStyle>
+			<LineStyle>
+				<color>ff2dc0fb</color>
+				<width>3</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>40ffffff</color>
+			</PolyStyle>
+			<BalloonStyle>
+			</BalloonStyle>
+		</Style>
+	</gx:CascadingStyle>
+	<StyleMap id="__managed_style_0663332CA940B5E194B8">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#__managed_style_0663332CA940B5E194B8_normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#__managed_style_0663332CA940B5E194B8_highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Placemark id="069A617FB740B5E1949E">
+		<name>Valvula 1</name>
+		<LookAt>
+			<longitude>-63.31129506222075</longitude>
+			<latitude>-31.33494944002518</latitude>
+			<altitude>185.8507904462082</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1340.572228812816</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.31318036260019,-31.33691131126364,0 -63.31059471532727,-31.33745576005663,0 -63.3106080671486,-31.33351536805766,0 -63.31087535413323,-31.33326086490703,0 -63.31134301046944,-31.33318863188109,0 -63.31193238836899,-31.33302257664277,0 -63.31318377321166,-31.33279437329978,0 -63.31318036260019,-31.33691131126364,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="07DC1CCEF140B5E30D71">
+		<name>Valvula 2</name>
+		<LookAt>
+			<longitude>-63.30818799825389</longitude>
+			<latitude>-31.33362417186546</latitude>
+			<altitude>185.1091814635894</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>926.171771344525</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.31059443391256,-31.33746681606965,0 -63.30810003167576,-31.33796685786615,0 -63.30819539130421,-31.33277985216907,0 -63.30877424418102,-31.33271754290539,0 -63.30878544039732,-31.3332287997691,0 -63.3088243793009,-31.33329150867757,0 -63.30915646291577,-31.33330358774942,0 -63.30942794853269,-31.33327209609408,0 -63.31025527042335,-31.33314158599152,0 -63.31039080757047,-31.33342246944837,0 -63.31060517555024,-31.3335137599615,0 -63.31059443391256,-31.33746681606965,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0C0C93DEE140B5E4E6B3">
+		<name>Valvula 3</name>
+		<LookAt>
+			<longitude>-63.30683185157685</longitude>
+			<latitude>-31.3356002010774</latitude>
+			<altitude>184.8933627124138</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1694.830802489596</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.30818582778999,-31.33277815409852,0 -63.30810690367725,-31.33797841013306,0 -63.30597467906603,-31.33842894926229,0 -63.30602773307436,-31.33307058128781,0 -63.30818582778999,-31.33277815409852,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="01F50D0B3240B5E5A0F7">
+		<name>Valvula 4</name>
+		<LookAt>
+			<longitude>-63.30683185157685</longitude>
+			<latitude>-31.33560019942908</latitude>
+			<altitude>184.8933627095845</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1694.830802489596</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.30594112894286,-31.33843148546154,0 -63.3038822623559,-31.33881788490887,0 -63.30385784005539,-31.33334694332733,0 -63.30600927143323,-31.333102069997,0 -63.30594112894286,-31.33843148546154,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="095488F98540B5E61786">
+		<name>Valvula 5</name>
+		<LookAt>
+			<longitude>-63.30683185157687</longitude>
+			<latitude>-31.33560019915436</latitude>
+			<altitude>184.8933627081699</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1694.830802489596</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.30385714371504,-31.33883042994251,0 -63.30228832258206,-31.33919075159854,0 -63.30164196817839,-31.33363464353945,0 -63.30383487768447,-31.33337483468963,0 -63.30385714371504,-31.33883042994251,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0F7DF9082240B5E70634">
+		<name>Valvula 6</name>
+		<LookAt>
+			<longitude>-63.31334181896251</longitude>
+			<latitude>-31.32732393523052</latitude>
+			<altitude>184.0671505479357</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1695.657222972368</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.31165130683118,-31.32447900966339,0 -63.3131493964955,-31.32420142284213,0 -63.31326162810081,-31.33136304528652,0 -63.31180806757099,-31.33147611820742,0 -63.31165130683118,-31.32447900966339,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="03A4A176C840B5E79039">
+		<name>Valvula 7</name>
+		<LookAt>
+			<longitude>-63.31287668484536</longitude>
+			<latitude>-31.32524222602863</latitude>
+			<altitude>184.6140803386452</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1695.110417048272</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.31179935526536,-31.33147489195448,0 -63.31066477582273,-31.33154552419313,0 -63.31064953280565,-31.33172998144036,0 -63.31017451251424,-31.33177345981949,0 -63.31000388046878,-31.32481490336479,0 -63.31162715928315,-31.32450565853259,0 -63.31179935526536,-31.33147489195448,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0BB4E93D9240B5E8FF7C">
+		<name>Valvula 8</name>
+		<LookAt>
+			<longitude>-63.31020318752027</longitude>
+			<latitude>-31.33096075374642</latitude>
+			<altitude>185.8501916014921</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1693.87421660882</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.30865580975056,-31.33265685877216,0 -63.30862268807992,-31.32991397902071,0 -63.30851674212726,-31.32515960411946,0 -63.30999722278992,-31.32481826019294,0 -63.31017125514817,-31.33180122485311,0 -63.30884806690658,-31.33190141166361,0 -63.30889663724845,-31.33263901753767,0 -63.30865580975056,-31.33265685877216,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="051CBE0B0940B5E98238">
+		<name>Valvula 9</name>
+		<LookAt>
+			<longitude>-63.30952733351134</longitude>
+			<latitude>-31.32995693967888</latitude>
+			<altitude>185.3026463255574</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1694.42194963689</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.30702859854881,-31.32542442287909,0 -63.30849271193699,-31.3251251543602,0 -63.308640797447,-31.33266225798601,0 -63.30720230978226,-31.33283868187623,0 -63.30702859854881,-31.32542442287909,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="06F92D6A6F40B5EA363C">
+		<name>Valvula 10</name>
+		<LookAt>
+			<longitude>-63.30807727809536</longitude>
+			<latitude>-31.32722478750456</latitude>
+			<altitude>184.2569872371073</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1695.467352078413</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.30719430124492,-31.33284332523726,0 -63.3057370931238,-31.33302773620503,0 -63.30563291501453,-31.32567037021431,0 -63.30704723714187,-31.32540188636208,0 -63.30719430124492,-31.33284332523726,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="0EAD4DD4FA40B5EACE96">
+		<name>Valvula 11</name>
+		<LookAt>
+			<longitude>-63.30484667888999</longitude>
+			<latitude>-31.3308419283166</latitude>
+			<altitude>184.6136520269642</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1695.110602469067</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.305726923352,-31.33303419180461,0 -63.30435804475242,-31.3331908093033,0 -63.30408156663094,-31.32600157637586,0 -63.30564117080267,-31.32566836950664,0 -63.305726923352,-31.33303419180461,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="08BB1C8A7A40B5EB86A3">
+		<name>Valvula 12</name>
+		<LookAt>
+			<longitude>-63.30374860052406</longitude>
+			<latitude>-31.32988302357895</latitude>
+			<altitude>183.4780614778035</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1696.246304837696</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.30435505110311,-31.33320796453508,0 -63.30285585898152,-31.33338871445885,0 -63.30264036894719,-31.32626756948206,0 -63.30405459354779,-31.32598028955502,0 -63.30435505110311,-31.33320796453508,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+	<Placemark id="084408DF6740B5EC19B6">
+		<name>Valvula 13</name>
+		<LookAt>
+			<longitude>-63.30339804738179</longitude>
+			<latitude>-31.33009412671201</latitude>
+			<altitude>183.3794150515855</altitude>
+			<heading>0</heading>
+			<tilt>0</tilt>
+			<gx:fovy>35</gx:fovy>
+			<range>1696.344948700571</range>
+			<altitudeMode>absolute</altitudeMode>
+		</LookAt>
+		<styleUrl>#__managed_style_0663332CA940B5E194B8</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-63.30287374314465,-31.33339605721968,0 -63.3016571045054,-31.33357562495418,0 -63.3016135732997,-31.33266838916608,0 -63.30151693630305,-31.3264751389849,0 -63.3026485979582,-31.32627264373308,0 -63.30287374314465,-31.33339605721968,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+	</Placemark>
+</Document>
+</kml>

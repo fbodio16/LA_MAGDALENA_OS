@@ -1,0 +1,4 @@
+LA MAGDALENA OS 5.0.0
+Centro de Decisiones Agropecuarias
+
+Incluye Centro Alfalfa con planificación de cortes, stock estimado, costos, margen y alertas automáticas.

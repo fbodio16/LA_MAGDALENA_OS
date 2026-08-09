@@ -1,0 +1,2 @@
+LA MAGDALENA OS 92.0.2
+FINAL · corrección semántica ET₀/ETc sin modificar el motor hídrico canónico.

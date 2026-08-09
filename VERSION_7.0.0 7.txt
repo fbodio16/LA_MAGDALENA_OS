@@ -1,0 +1,2 @@
+LA MAGDALENA OS 7.0.0 · ESTABILIZACIÓN Y RESPALDO
+Estado: MODO PRUEBA hasta completar la lista de control de Seguridad de datos.

@@ -1,0 +1,21 @@
+LA MAGDALENA OS 36.2 · RIEGO INTELIGENTE + ECOWITT
+
+INSTALACIÓN APPLE
+1. Descomprimir esta carpeta en el Escritorio.
+2. Abrir Terminal y entrar a la carpeta.
+3. Ejecutar:
+   bash ./00_INSTALAR_Y_ABRIR_RIEGO.command
+
+Este instalador crea automáticamente la plataforma iOS si todavía no existe.
+
+ACTIVACIÓN DE BASE DE DATOS
+Para guardar muestras gravimétricas, perfiles hídricos, observaciones Ecowitt y balances diarios,
+se debe ejecutar en Supabase SQL Editor:
+  supabase/031_ecowitt_integration_v36_2.sql
+
+Después debe desplegarse la Edge Function:
+  supabase/functions/ecowitt-sync
+
+SEGURIDAD
+Las API keys de Ecowitt no deben escribirse en el JavaScript público ni compartirse por chat.
+Deben guardarse como secretos de la Edge Function de Supabase.

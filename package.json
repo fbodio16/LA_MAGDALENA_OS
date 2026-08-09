@@ -1,0 +1,24 @@
+{
+  "name": "la-magdalena-os",
+  "private": true,
+  "version": "92.1.0",
+  "description": "LA MAGDALENA OS v92.1.0 - Release de publicación con ETc unificada, simulador operativo y objetivo productivo claro",
+  "scripts": {
+    "web:start": "cd apps/web && python3 -m http.server 8080",
+    "web:check": "node scripts/check-web.mjs",
+    "apple:create": "node scripts/apple-create.mjs",
+    "apple:sync": "npx cap sync ios",
+    "apple:open": "npx cap open ios",
+    "apple:run": "npx cap run ios",
+    "check:release": "node scripts/check-web.mjs && node scripts/check-release.mjs",
+    "release:all": "npm run check:release && npx cap sync ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "typescript": "^6.0.0"
+  }
+}

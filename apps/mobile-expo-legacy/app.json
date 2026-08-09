@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "La Magdalena OS",
+    "slug": "la-magdalena-os",
+    "version": "1.6.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#07513d"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lamagdalena.os",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "La Magdalena OS utiliza la fototeca para adjuntar imágenes de lotes, cultivos y trabajos.",
+        "NSCameraUsageDescription": "La Magdalena OS utiliza la cámara para registrar imágenes de campo."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#07513d"
+      },
+      "package": "com.lamagdalena.os"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1f9646e4-e043-4dd6-b233-4443a1f2bf6e"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+LA MAGDALENA OS 4.0.0 · OPERACIONES ENTERPRISE
+
+Módulo Transporte Enterprise incorporado:
+- Registro y edición de viajes.
+- Cliente, origen, destino y carga.
+- Toneladas y kilómetros.
+- Combustible y consumo cada 100 km.
+- Peajes, viáticos, mantenimiento y otros costos.
+- Ingreso, costo y margen automático.
+- Estado operativo y estado de cobro.
+- Camión, semirremolque, chofer y comprobante.
+- Indicadores ejecutivos y rentabilidad acumulada.

@@ -1,0 +1,2 @@
+LA MAGDALENA OS 29.0.0
+Precarga automática de los 13 lotes y acceso directo al Libro Digital desde el mapa.

@@ -1,0 +1,18 @@
+{
+  "version": "v75.1-stable-protected",
+  "verified_in_release": "90.0.0",
+  "files": {
+    "apps/web/js/services/hydric-state.js": {
+      "unchanged": true,
+      "sha256": "1a41119471a7fd03cfd5c58ab478a460b50c978ea77aadd2e067326e2e779431"
+    },
+    "apps/web/js/modules/hydric-intelligence/index.js": {
+      "unchanged": true,
+      "sha256": "5f2380e5df4038969f9ee435f84a04288ff0cac5456ebe2fde6b4377c4f551e3"
+    },
+    "apps/web/js/modules/premium-home/index.js": {
+      "unchanged": true,
+      "sha256": "72c3a9a49b77e1c7c1933615d3b5f4ac7df606c6f54439dfb893f65152aa49af"
+    }
+  }
+}

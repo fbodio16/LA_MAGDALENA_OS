@@ -1,0 +1,9 @@
+LA MAGDALENA OS v64.0.0
+INTELIGENCIA AGRONÓMICA PREDICTIVA
+
+- LM AI agronómico basado en los datos reales cargados.
+- Simulador de espera a 1, 2, 3 y 5 días.
+- Ranking de prioridad económica y operativa.
+- Mapa hídrico operativo de los 13 sectores.
+- Correcciones incorporadas para sortRecommendations y hours.
+- Sin migraciones destructivas ni cambios en Supabase.

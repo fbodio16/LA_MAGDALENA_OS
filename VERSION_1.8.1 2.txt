@@ -1,0 +1,2 @@
+LA MAGDALENA OS 2.0.0 · PRODUCCIÓN ENTERPRISE
+Editor de corte ampliado con calculadora visible, costos y margen en tiempo real.

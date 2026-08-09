@@ -1,0 +1,2 @@
+LA MAGDALENA OS 20.4.0
+Análisis histórico, simulador de decisiones y comparador de lotes.

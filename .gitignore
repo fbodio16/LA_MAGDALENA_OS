@@ -1,0 +1,9 @@
+node_modules/
+ios/
+.DS_Store
+*.log
+apps/web/.env.local
+.vercel/
+.env
+.env.*
+!.env.example

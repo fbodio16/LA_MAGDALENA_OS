@@ -1,0 +1,3 @@
+LA MAGDALENA OS 92.0.2
+Release Candidate Estable
+Motor Hídrico canónico sincronizado: instancia única de hydric-state

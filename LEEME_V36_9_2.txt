@@ -1,0 +1,5 @@
+VERSIÓN 36.9.2
+
+Corrección concreta: los formularios hídricos ahora usan el contenedor global #modalRoot, el mismo sistema de ventanas que utiliza el resto de LA MAGDALENA OS. Se agregó estilo fijo de respaldo para garantizar que la ventana sea visible.
+
+Probar: npm run web:start y abrir http://127.0.0.1:8080/index.html

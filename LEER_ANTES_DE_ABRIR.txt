@@ -1,0 +1,10 @@
+LA MAGDALENA OS · v1.6.2 · macOS
+
+1. Hacé doble clic en: 00_INICIAR_LA_MAGDALENA.command
+2. Si macOS lo bloquea: clic derecho > Abrir > Abrir.
+3. Si sigue mostrando una versión anterior: ejecutá 01_REINICIAR_SERVIDOR.command.
+
+Alternativa desde Terminal:
+cd "/ruta/a/LA_MAGDALENA_OS_V1_6_2_MAC"
+chmod +x *.command
+./00_INICIAR_LA_MAGDALENA.command

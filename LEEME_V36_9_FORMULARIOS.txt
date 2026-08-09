@@ -1,0 +1,17 @@
+LA MAGDALENA OS 36.9 - FORMULARIOS HIDRICOS
+
+Esta versión parte del proyecto completo V36.8 y corrige la carga de la versión antigua en caché.
+
+PRUEBA LOCAL
+1. Abrir Terminal en esta carpeta.
+2. Ejecutar: npm run web:start
+3. Abrir: http://127.0.0.1:8080
+4. La portada debe mostrar 36.9.0.
+5. Entrar a Inteligencia hídrica. Debe mostrar MOTOR DE RIEGO OPERATIVO 36.9.
+6. Probar Cargar muestra, Configurar lote y Registrar riego.
+
+PUBLICAR EN VERCEL
+Ejecutar: npm run web:deploy
+
+IMPORTANTE
+Las recomendaciones son orientativas hasta cargar el perfil y las muestras reales de 0-30 y 30-60 cm.

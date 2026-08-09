@@ -1,0 +1,14 @@
+{
+  "name": "la-magdalena-os",
+  "private": true,
+  "version": "19.0.0",
+  "scripts": {
+    "mobile": "cd apps/mobile && npm install && npx expo start --clear",
+    "web:local": "cd apps/web && python3 -m http.server 8080",
+    "web:deploy": "cd apps/web && npx --yes vercel@latest --prod",
+    "web:start": "cd apps/web && python3 -m http.server 8080",
+    "check:web": "node scripts/check-web.mjs",
+    "dev:open": "open -a \"Visual Studio Code\" .",
+    "check:release": "node scripts/check-web.mjs && node scripts/check-release.mjs"
+  }
+}

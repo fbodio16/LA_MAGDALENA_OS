@@ -1,0 +1,9 @@
+LA MAGDALENA OS 1.6.1 · LOTES PRO
+
+1. Cerrá la pestaña vieja de localhost:8080.
+2. Hacé doble clic en REINICIAR_LIMPIO.command la primera vez.
+3. Si macOS bloquea el archivo: clic derecho > Abrir > Abrir.
+4. Mantené abierta la ventana de Terminal mientras usás el sistema.
+5. La pestaña debe mostrar: LA MAGDALENA OS · 1.6.1 LOTES PRO.
+
+En los siguientes usos podés abrir ABRIR_WEB_LOCAL.command.

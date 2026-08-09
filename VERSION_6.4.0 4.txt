@@ -1,0 +1,4 @@
+LA MAGDALENA OS
+Versión 6.4.0 · Flujo de Fondos y Presupuesto
+
+Módulo financiero consolidado en pesos argentinos.

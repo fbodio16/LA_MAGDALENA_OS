@@ -1,0 +1,2 @@
+91.1.0
+Auditoría hídrica limpia: historial canónico depurado, sin eventos 0→0 y con clasificación de fuente. El historial original se conserva.

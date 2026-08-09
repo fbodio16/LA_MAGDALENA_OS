@@ -1,0 +1,12 @@
+LA MAGDALENA OS 3.4.0 · ALFALFA PRO
+
+Módulo productivo profesional integrado:
+- Registro de cortes por lote y campaña.
+- Rollos, toneladas, peso promedio y rendimiento por hectárea.
+- Costos completos y margen bruto.
+- Stock, ventas, clientes y cobranzas.
+- Laboratorio: proteína, FDA, FDN y RFV.
+- Calidad comercial automática.
+- Proyecciones anuales y evolución por lote.
+- Fotografías y exportación CSV.
+- Instalador automático para el repositorio GitHub local.

@@ -1,0 +1,3 @@
+LA MAGDALENA OS 91.0.0
+Centro de Decisión Hídrico-Productivo
+Balance diario + consumo + riesgo + simulador + impacto productivo + calibración por válvula.
