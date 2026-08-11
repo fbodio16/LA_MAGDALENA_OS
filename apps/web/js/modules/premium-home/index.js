@@ -358,9 +358,60 @@ export function createPremiumHomeModule({state,helpers,hydricState,openModal,set
         id:String(x?.lot?.id||''),code:String(x?.valve?.valve_code||x?.p?.valve_code||`V-${index+1}`),name:valveName(x),crop:cropName(x),area,
         occupancy:x?.occupancy==null?null:n(x.occupancy),tone:statusTone(x),status,application:n(x?.application),hours:x?.hours==null?null:n(x.hours),
         volume:n(x?.application)*area*10,confidence:n(x?.confidence),ndvi:sat.ndvi,date:sat.date,instruction:String(x?.instruction||'Faltan datos para completar la recomendación.'),
-        eto:n(x?.etoDay),etc:n(x?.etc),rain:n(x?.effectiveRain),decisionReady:Boolean(x?.decision?.ready),decisionLabel:String(x?.decision?.label||'VERIFICAR ANTES DE ACTUAR'),decisionBlockers:(x?.decision?.blockers||[]),decisionWarnings:(x?.decision?.warnings||[])
+        eto:n(x?.etoDay),etc:n(x?.etc),rain:n(x?.effectiveRain),irrigation:n(x?.effectiveIrrigation),sampleDate:day(x?.lastSample?.sample_date||x?.lastSample?.created_at)||'Sin muestra',sampleAge:x?.sampleAge!=null&&x.sampleAge<999?Math.round(x.sampleAge):null,waterMode:x?.occupancySource==='balance_integrado'?'MEDIDO + BALANCE':x?.fallbackProjected?'ESTIMADO · respaldo proyectado':'ESTIMADO',waterSource:String(x?.occupancySource||'sin fuente'),decisionReady:Boolean(x?.decision?.ready),decisionLabel:String(x?.decision?.label||'VERIFICAR ANTES DE ACTUAR'),decisionBlockers:(x?.decision?.blockers||[]),decisionWarnings:(x?.decision?.warnings||[]),frozenAudit:x?.frozenAudit||{flag:false,label:'Sin evidencia de congelamiento'}
       };
     });
+  }
+
+
+  function auditActions(x){
+    const issues=[...(x.decisionBlockers||[]),...(x.decisionWarnings||[])];
+    const actions=[];
+    const has=(needle)=>issues.some(v=>String(v).toLowerCase().includes(needle));
+    if(has('balance preventivo')||has('balance integrado')||String(x.waterSource)!=='balance_integrado')actions.push('Completar/calibrar balance hídrico integrado');
+    if(has('muestra'))actions.push('Cargar nueva muestra gravimétrica de suelo');
+    if(has('et₀'))actions.push('Verificar estación meteorológica o ET₀ diaria');
+    if(has('confianza baja')||has('confianza moderada')||has('confianza sin'))actions.push('Mejorar cobertura de datos para elevar la confianza a ≥80%');
+    if(has('lámina exacta'))actions.push('Definir lámina de riego');
+    if(has('tasa/caudal'))actions.push('Calibrar caudal/tasa real de la válvula');
+    if(has('duración exacta'))actions.push('Calcular duración con lámina y caudal verificados');
+    if(x.frozenAudit?.flag)actions.push('Revisar historial: posible porcentaje congelado');
+    if(!actions.length&&!x.decisionReady)actions.push('Revisar fuentes faltantes antes de actuar');
+    return [...new Set(actions)];
+  }
+
+  function calibrationBreakdown(x){
+    const issues=[...(x.decisionBlockers||[]),...(x.decisionWarnings||[])].map(v=>String(v).toLowerCase());
+    const parts=[];
+    const add=(label,ok,impact,action)=>parts.push({label,ok,impact,action});
+    add('Balance hídrico',x.waterSource==='balance_integrado',x.waterSource==='balance_integrado'?0:8,'Completar/calibrar balance integrado');
+    add('Muestra vigente',x.sampleAge!=null&&x.sampleAge<=15,x.sampleAge!=null&&x.sampleAge<=15?0:6,'Cargar nueva muestra gravimétrica');
+    add('ET₀ diaria',n(x.eto)>0,n(x.eto)>0?0:5,'Verificar estación/ET₀');
+    const hasFlow=!(issues.some(v=>v.includes('tasa/caudal')));
+    add('Caudal/tasa',hasFlow,hasFlow?0:5,'Calibrar caudal/tasa real');
+    const hasDuration=!(issues.some(v=>v.includes('duración exacta')));
+    add('Duración',hasDuration,hasDuration?0:4,'Calcular duración con lámina y caudal');
+    const gap=Math.max(0,80-n(x.confidence));
+    if(gap>0)parts.push({label:'Cobertura/confianza',ok:false,impact:gap,action:`Elevar confianza ${gap} punto${gap===1?'':'s'} hasta 80%`});
+    return parts;
+  }
+  function calibrationPriority(x){
+    const status=String(x.status||'').toLowerCase();
+    if(status.includes('regar hoy')||x.tone==='red')return 0;
+    if(status.includes('vigilar')||x.tone==='yellow')return 1;
+    return 2;
+  }
+  function calibrationCenter(summary){
+    const rows=commandMapData(summary.rows);
+    const pending=rows.filter(x=>!x.decisionReady).sort((a,b)=>calibrationPriority(a)-calibrationPriority(b)||n(a.confidence)-n(b.confidence));
+    const enabled=rows.filter(x=>x.decisionReady).length;
+    const priority=pending[0];
+    const cards=pending.map((x,i)=>{
+      const parts=calibrationBreakdown(x), missing=parts.filter(p=>!p.ok), projected=Math.min(100,n(x.confidence)+missing.reduce((s,p)=>s+n(p.impact),0));
+      const pr=calibrationPriority(x)===0?'URGENTE · REVISAR RIEGO':calibrationPriority(x)===1?'PRIORIDAD MEDIA · VIGILAR':'CALIBRACIÓN';
+      return `<article class="v926-cal-card ${calibrationPriority(x)===0?'urgent':calibrationPriority(x)===1?'watch':''}"><div class="v926-cal-head"><div><small>#${i+1} · ${pr}</small><b>${esc(x.code)} · ${esc(x.name)}</b></div><strong>${number(x.confidence,0)}%</strong></div><div class="v926-cal-bars">${parts.map(p=>`<div class="${p.ok?'ok':'miss'}"><span>${p.ok?'✓':'!'} ${esc(p.label)}</span><em>${p.ok?'OK':`hasta +${number(p.impact,0)} pt`}</em></div>`).join('')}</div><p><b>Acción:</b> ${missing.length?esc(missing.map(p=>p.action).join(' → ')):'Sin acciones pendientes.'}</p><div class="v926-cal-foot"><span>Actual ${number(x.confidence,0)}%</span><span>Umbral 80%</span><span>Potencial tras corregir ≤ ${number(projected,0)}%</span></div></article>`;
+    }).join('');
+    return `<section class="v926-calibration"><div class="panel-title"><div><p class="eyebrow">CENTRO DE CALIBRACIÓN HÍDRICA · v92.2.6</p><h3>Cómo llevar las decisiones a 13/13 reales</h3><p class="muted">Descompone la confianza por fuente y prioriza primero los sectores que requieren riego. No modifica ni fuerza el motor hídrico.</p></div><span class="pill">${enabled}/13 habilitadas · ${pending.length} pendientes</span></div>${priority?`<div class="v926-priority"><b>Primero revisar ${esc(priority.code)} · ${esc(priority.name)}</b><span>${esc(priority.status)} · confianza ${number(priority.confidence,0)}% · faltan ${Math.max(0,80-n(priority.confidence))} pt para el umbral</span></div>`:''}<div class="v926-cal-grid">${cards||'<div class="v926-all-ok"><b>13/13 habilitadas</b><span>No hay calibraciones pendientes.</span></div>'}</div></section>`;
   }
 
   function commandCenter(summary,weather,forecastRain){
@@ -376,7 +427,7 @@ export function createPremiumHomeModule({state,helpers,hydricState,openModal,set
           <div class="v65-field-map"><div class="v65-field-lines"></div>${markers}</div>
           <div class="v65-legend"><span><i class="red"></i>Regar</span><span><i class="yellow"></i>Vigilar</span><span><i class="green"></i>Sin riego</span><span><i class="neutral"></i>Incompleto</span></div>
         </div>
-        <aside class="v65-focus" id="v65Focus">${selected?`<p class="eyebrow">VÁLVULA SELECCIONADA</p><div class="v65-focus-title"><div><small>${esc(selected.code)}</small><h3>${esc(selected.name)}</h3><p>${esc(selected.crop)} · ${number(selected.area,1)} ha</p></div><div class="v65-focus-dial ${selected.tone}"><b>${selected.occupancy==null?'—':number(selected.occupancy,0)+'%'}</b><small>agua</small></div></div><div class="v75-decision-gate ${selected.decisionReady?'ok':'warn'}">${esc(selected.decisionLabel)}</div><div class="v65-focus-decision ${selected.tone}">${esc(selected.status)}</div><div class="v65-focus-grid"><div><small>Lámina</small><b>${selected.application?number(selected.application,1)+' mm':'—'}</b></div><div><small>Volumen</small><b>${selected.volume?number(selected.volume,0)+' m³':'—'}</b></div><div><small>Tiempo</small><b>${selected.hours==null?'Pendiente':number(selected.hours,1)+' h'}</b></div><div><small>Confianza</small><b>${selected.confidence?number(selected.confidence,0)+'%':'—'}</b></div><div><small>NDVI</small><b>${selected.ndvi==null?'—':number(selected.ndvi,3)}</b></div><div><small>Satélite</small><b>${esc(selected.date)}</b></div><div><small>ET₀ diaria / ETc acumulada</small><b>${number(selected.eto,1)} mm/día / ${number(selected.etc,1)} mm</b></div><div><small>Lluvia útil</small><b>${number(selected.rain,1)} mm</b></div></div><p class="v65-focus-text">${esc(selected.instruction)}</p><button class="primary premiumHydricClock" data-lot="${esc(selected.id)}">Abrir detalle completo</button>`:'<p>Sin válvulas disponibles.</p>'}</aside>
+        <aside class="v65-focus" id="v65Focus">${selected?`<p class="eyebrow">VÁLVULA SELECCIONADA</p><div class="v65-focus-title"><div><small>${esc(selected.code)}</small><h3>${esc(selected.name)}</h3><p>${esc(selected.crop)} · ${number(selected.area,1)} ha</p></div><div class="v65-focus-dial ${selected.tone}"><b>${selected.occupancy==null?'—':number(selected.occupancy,0)+'%'}</b><small>agua</small></div></div><div class="v75-decision-gate ${selected.decisionReady?'ok':'warn'}">${esc(selected.decisionLabel)}</div><div class="v65-focus-decision ${selected.tone}">${esc(selected.status)}</div><div class="v65-focus-grid"><div><small>Lámina</small><b>${selected.application?number(selected.application,1)+' mm':'—'}</b></div><div><small>Volumen</small><b>${selected.volume?number(selected.volume,0)+' m³':'—'}</b></div><div><small>Tiempo</small><b>${selected.hours==null?'Pendiente':number(selected.hours,1)+' h'}</b></div><div><small>Confianza</small><b>${selected.confidence?number(selected.confidence,0)+'%':'—'}</b></div><div><small>NDVI</small><b>${selected.ndvi==null?'—':number(selected.ndvi,3)}</b></div><div><small>Satélite</small><b>${esc(selected.date)}</b></div><div><small>Modo hídrico</small><b>${esc(selected.waterMode)}</b></div><div><small>Última muestra</small><b>${esc(selected.sampleDate)}${selected.sampleAge!=null?` · ${selected.sampleAge} d`:''}</b></div><div><small>ET₀ diaria / ETc acumulada</small><b>${number(selected.eto,1)} mm/día / ${number(selected.etc,1)} mm</b></div><div><small>Aportes desde muestra</small><b>Riego ${number(selected.irrigation,1)} · Lluvia ${number(selected.rain,1)} mm</b></div></div><p class="v65-focus-text">${esc(selected.instruction)}</p><button class="primary premiumHydricClock" data-lot="${esc(selected.id)}">Abrir detalle completo</button>`:'<p>Sin válvulas disponibles.</p>'}</aside>
       </div>
     </section>`;
   }
@@ -415,6 +466,8 @@ export function createPremiumHomeModule({state,helpers,hydricState,openModal,set
 
       ${commandCenter(summary,weather,forecastRain)}
 
+      ${calibrationCenter(summary)}
+      <section class="v923-auditor"><div class="panel-title"><div><p class="eyebrow">AUDITOR HÍDRICO 13/13 · v92.2.6</p><h3>Qué falta en cada válvula y cómo habilitarla</h3><p class="muted">Muestra la causa exacta de cada estado provisional y la acción necesaria. No fuerza decisiones: sólo habilita cuando los datos cumplen los controles.</p></div><span class="pill">${summary.valid.filter(x=>x?.decision?.ready).length} habilitadas · ${summary.valid.filter(x=>!x?.decision?.ready).length} provisionales</span></div><div class="v923-audit-grid">${commandMapData(summary.rows).map(x=>{const issues=[...(x.decisionBlockers||[]),...(x.decisionWarnings||[])];const frozen=x.frozenAudit?.flag;const auditState=x.decisionReady?'HABILITADA':'PROVISIONAL';const actions=auditActions(x);return `<article class="v923-audit-card ${x.decisionReady?'ok':'warn'} ${frozen?'frozen':''}"><div><b>${esc(x.code)} · ${esc(x.name)}</b><span>${auditState}${frozen?' · ⚠ POSIBLE CONGELAMIENTO':''}</span></div><small class="v925-audit-line"><b>Diagnóstico:</b> ${issues.length?esc(issues.join(' · ')):'Controles operativos completos.'}</small>${actions.length?`<small class="v925-audit-action"><b>Para habilitar:</b> ${esc(actions.join(' → '))}</small>`:'<small class="v925-audit-action ok"><b>Estado:</b> lista para decisión operativa.</small>'}<div class="v925-audit-meta"><span>${esc(x.waterMode)}</span><span>Muestra: ${esc(x.sampleDate)}${x.sampleAge!=null?` · ${x.sampleAge} d`:''}</span><span>Conf. ${number(x.confidence,0)}%</span><span>ET₀ ${number(x.eto,1)} mm/d</span></div></article>`}).join('')}</div></section>
       <section class="v75-decision-strip"><div><small>MODO DECISIÓN</small><b>${summary.valid.filter(x=>x?.decision?.ready).length}/${summary.valid.length} válvulas habilitadas</b></div><p>Una recomendación sólo se considera operativa cuando tiene balance calibrado, muestra vigente, ET₀, confianza ≥80% y —si corresponde regar— lámina, caudal y duración verificables.</p></section>
 
       <section class="v642-valves-first">
@@ -463,7 +516,7 @@ export function createPremiumHomeModule({state,helpers,hydricState,openModal,set
       const paint=(x,index)=>{
         document.querySelectorAll('.v65-marker').forEach((button,i)=>button.classList.toggle('active',i===index));
         if(!focus||!x)return;
-        focus.innerHTML=`<p class="eyebrow">VÁLVULA SELECCIONADA</p><div class="v65-focus-title"><div><small>${esc(x.code)}</small><h3>${esc(x.name)}</h3><p>${esc(x.crop)} · ${number(x.area,1)} ha</p></div><div class="v65-focus-dial ${x.tone}"><b>${x.occupancy==null?'—':number(x.occupancy,0)+'%'}</b><small>agua</small></div></div><div class="v75-decision-gate ${x.decisionReady?'ok':'warn'}">${esc(x.decisionLabel)}</div><div class="v65-focus-decision ${x.tone}">${esc(x.status)}</div><div class="v65-focus-grid"><div><small>Lámina</small><b>${x.application?number(x.application,1)+' mm':'—'}</b></div><div><small>Volumen</small><b>${x.volume?number(x.volume,0)+' m³':'—'}</b></div><div><small>Tiempo</small><b>${x.hours==null?'Pendiente':number(x.hours,1)+' h'}</b></div><div><small>Confianza</small><b>${x.confidence?number(x.confidence,0)+'%':'—'}</b></div><div><small>NDVI</small><b>${x.ndvi==null?'—':number(x.ndvi,3)}</b></div><div><small>Satélite</small><b>${esc(x.date)}</b></div><div><small>ET₀ diaria / ETc acumulada</small><b>${number(x.eto,1)} mm/día / ${number(x.etc,1)} mm</b></div><div><small>Lluvia útil</small><b>${number(x.rain,1)} mm</b></div></div><p class="v65-focus-text">${esc(x.instruction)}</p><button class="primary premiumHydricClock" data-lot="${esc(x.id)}">Abrir detalle completo</button>`;
+        focus.innerHTML=`<p class="eyebrow">VÁLVULA SELECCIONADA</p><div class="v65-focus-title"><div><small>${esc(x.code)}</small><h3>${esc(x.name)}</h3><p>${esc(x.crop)} · ${number(x.area,1)} ha</p></div><div class="v65-focus-dial ${x.tone}"><b>${x.occupancy==null?'—':number(x.occupancy,0)+'%'}</b><small>agua</small></div></div><div class="v75-decision-gate ${x.decisionReady?'ok':'warn'}">${esc(x.decisionLabel)}</div><div class="v65-focus-decision ${x.tone}">${esc(x.status)}</div><div class="v65-focus-grid"><div><small>Lámina</small><b>${x.application?number(x.application,1)+' mm':'—'}</b></div><div><small>Volumen</small><b>${x.volume?number(x.volume,0)+' m³':'—'}</b></div><div><small>Tiempo</small><b>${x.hours==null?'Pendiente':number(x.hours,1)+' h'}</b></div><div><small>Confianza</small><b>${x.confidence?number(x.confidence,0)+'%':'—'}</b></div><div><small>NDVI</small><b>${x.ndvi==null?'—':number(x.ndvi,3)}</b></div><div><small>Satélite</small><b>${esc(x.date)}</b></div><div><small>Modo hídrico</small><b>${esc(x.waterMode)}</b></div><div><small>Última muestra</small><b>${esc(x.sampleDate)}${x.sampleAge!=null?` · ${x.sampleAge} d`:''}</b></div><div><small>ET₀ diaria / ETc acumulada</small><b>${number(x.eto,1)} mm/día / ${number(x.etc,1)} mm</b></div><div><small>Aportes desde muestra</small><b>Riego ${number(x.irrigation,1)} · Lluvia ${number(x.rain,1)} mm</b></div></div><p class="v65-focus-text">${esc(x.instruction)}</p><button class="primary premiumHydricClock" data-lot="${esc(x.id)}">Abrir detalle completo</button>`;
         const detail=focus.querySelector('.premiumHydricClock');
         if(detail)detail.onclick=()=>{document.querySelector(`.v642-card-head[data-lot="${CSS.escape(String(x.id))}"]`)?.click()};
       };

@@ -1,8 +1,8 @@
 {
   "name": "la-magdalena-os",
   "private": true,
-  "version": "92.1.0",
-  "description": "LA MAGDALENA OS v92.1.0 - Release de publicación con ETc unificada, simulador operativo y objetivo productivo claro",
+  "version": "92.1.8",
+  "description": "LA MAGDALENA OS v92.1.8 - Gemelo hídrico canónico y Sentinel-2 explicable",
   "scripts": {
     "web:start": "cd apps/web && python3 -m http.server 8080",
     "web:check": "node scripts/check-web.mjs",

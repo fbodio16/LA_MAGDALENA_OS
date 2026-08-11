@@ -1,4 +1,4 @@
-export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadData,render,setPage}){
+export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadData,render,setPage,getHydricValve,getHydricHistory}){
   const dateTime=value=>value?new Intl.DateTimeFormat('es-AR',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value)):'Sin registrar';
   const dateOnly=value=>value?new Intl.DateTimeFormat('es-AR',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(`${String(value).slice(0,10)}T12:00:00`)):'Sin registrar';
   const n=value=>Number(value||0);
@@ -28,11 +28,56 @@ export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadD
 
   const lotGeometry=lotId=>(state.geometries||[]).find(x=>x.lot_id===lotId);
   const latestBy=(rows,lotId,dateFields)=>rows.filter(x=>x.lot_id===lotId).sort((a,b)=>new Date(dateFields.map(k=>b[k]).find(Boolean)||0)-new Date(dateFields.map(k=>a[k]).find(Boolean)||0))[0];
+  const satelliteDate=o=>o?.observed_from||o?.observed_to||null;
+  function latestVegetationObservation(lotId){
+    const flight=latestBy(state.analyses||[],lotId,['flight_date']);
+    const satellite=latestBy(state.satelliteObservations||[],lotId,['observed_from','observed_to']);
+    const flightDate=flight?.flight_date||null, satDate=satelliteDate(satellite);
+    if(!flight&&!satellite)return null;
+    if(satellite && (!flight || new Date(satDate||0)>=new Date(flightDate||0))){
+      return {
+        ...satellite,
+        ndvi_avg:satellite.ndvi,
+        ndre_avg:satellite.ndre,
+        ndmi_avg:satellite.ndmi,
+        msavi_avg:satellite.msavi,
+        flight_date:satDate,
+        vegetation_date:satDate,
+        vegetation_source:'satellite',
+        vegetation_source_label:'Sentinel-2'
+      };
+    }
+    return {...flight,vegetation_date:flightDate,vegetation_source:'flight',vegetation_source_label:'Relevamiento cargado'};
+  }
+  function canonicalHydric(lotId){
+    try{return typeof getHydricValve==='function'?getHydricValve(lotId):null}catch(_e){return null}
+  }
+  function hydricHistory(lotId){
+    try{return typeof getHydricHistory==='function'?(getHydricHistory(lotId)||[]):[]}catch(_e){return []}
+  }
+  function satelliteDataStatus(a){
+    const values=[a?.ndvi_avg,a?.ndre_avg,a?.ndmi_avg,a?.msavi_avg].filter(v=>v!=null&&v!==''&&Number.isFinite(Number(v)));
+    if(values.length)return {valid:true,label:'Dato válido'};
+    return {valid:false,label:'Sin dato óptico válido · posible nubosidad o escena descartada'};
+  }
+  function satelliteCover(a){
+    const q=satelliteDataStatus(a);
+    if(a?.vegetation_source!=='satellite')return `<div class="field-book-analysis-cover"><strong>Relevamiento</strong><small>${q.label}</small></div>`;
+    const ndvi=a?.ndvi_avg!=null&&Number.isFinite(Number(a.ndvi_avg))?n(a.ndvi_avg):null;
+    const pct=ndvi==null?0:Math.max(0,Math.min(100,ndvi*100));
+    return `<div class="field-book-analysis-cover satellite-cover"><div><strong>Sentinel-2</strong><small>${escapeHtml(q.label)}</small></div><div class="satellite-cover-meter"><i style="width:${pct}%"></i></div><b>${ndvi==null?'—':ndvi.toFixed(3)}</b><small>NDVI</small></div>`;
+  }
+  function vegetationHistory(lotId){
+    const flights=(state.analyses||[]).filter(x=>x.lot_id===lotId).map(x=>({...x,vegetation_date:x.flight_date,vegetation_source:'flight',vegetation_source_label:'Relevamiento cargado'}));
+    const satellites=(state.satelliteObservations||[]).filter(x=>x.lot_id===lotId).map(x=>({...x,ndvi_avg:x.ndvi,ndre_avg:x.ndre,ndmi_avg:x.ndmi,msavi_avg:x.msavi,vegetation_date:satelliteDate(x),flight_date:satelliteDate(x),vegetation_source:'satellite',vegetation_source_label:'Sentinel-2'}));
+    return [...flights,...satellites].filter(x=>x.vegetation_date).sort((a,b)=>new Date(b.vegetation_date)-new Date(a.vegetation_date));
+  }
   function unifiedTimeline(lot){
     const items=[...lotEvents(lot.id).map(e=>({...e,source:'manual'}))];
     (state.irrigations||[]).filter(x=>x.lot_id===lot.id).forEach(x=>items.push({id:`ir-${x.id}`,event_type:'riego',event_date:x.event_date||x.irrigation_date,title:`Riego ${x.depth_mm||x.mm||''}${x.depth_mm||x.mm?' mm':''}`.trim(),description:x.notes||x.observations||'Registro de riego',source:'riego'}));
     (state.cuts||[]).filter(x=>x.lot_id===lot.id).forEach(x=>items.push({id:`cut-${x.id}`,event_type:'corte',event_date:x.cut_date,title:`Corte ${x.cut_number||''}`.trim(),description:`${n(x.bales||x.rolls)} rollos registrados`,source:'producción'}));
     (state.analyses||[]).filter(x=>x.lot_id===lot.id).forEach(x=>items.push({id:`flight-${x.id}`,event_type:'vuelo_mavic',event_date:x.flight_date,title:'Vuelo y análisis multiespectral',description:x.ndvi_avg!=null?`NDVI promedio ${n(x.ndvi_avg).toFixed(2)}`:'Análisis de precisión',source:'precisión'}));
+    (state.satelliteObservations||[]).filter(x=>x.lot_id===lot.id).forEach(x=>items.push({id:`sat-${x.id}`,event_type:'imagen_satelital',event_date:satelliteDate(x),title:'Imagen satelital Sentinel-2',description:x.ndvi!=null?`NDVI ${n(x.ndvi).toFixed(3)}${x.ndre!=null?` · NDRE ${n(x.ndre).toFixed(3)}`:''}`:'Observación satelital',source:'satélite'}));
     (state.gravimetricSamples||[]).filter(x=>x.lot_id===lot.id).forEach(x=>items.push({id:`grav-${x.id}`,event_type:'humedad_gravimetrica',event_date:x.sample_date,title:'Muestra gravimétrica',description:x.moisture_percent!=null?`Humedad ${n(x.moisture_percent).toFixed(1)}%`:'Calibración hídrica',source:'hidrología'}));
     return items.sort((a,b)=>new Date(b.event_date)-new Date(a.event_date));
   }
@@ -40,7 +85,7 @@ export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadD
   function agronomicDecisions({lot,hydric,lastFlight,lastIrr,lastCut,grav,rain7,active}){
     const decisions=[];
     const irrAge=daysSince(lastIrr?.event_date||lastIrr?.irrigation_date);
-    const flightAge=daysSince(lastFlight?.flight_date);
+    const flightAge=daysSince(lastFlight?.vegetation_date||lastFlight?.flight_date);
     const cutAge=daysSince(lastCut?.cut_date);
     const gravAge=daysSince(grav?.sample_date);
     const water=n(hydric?.soil_water_mm);
@@ -63,10 +108,10 @@ export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadD
     if(!lastFlight || flightAge>14){
       decisions.push({
         priority:lastFlight?'media':'alta',icon:'🛰️',title:'Programar relevamiento multiespectral',
-        recommendation:lastFlight?`El último vuelo fue hace ${flightAge} días.`:'No hay un vuelo multiespectral asociado al lote.',
+        recommendation:lastFlight?`La última observación de vigor (${lastFlight.vegetation_source_label||'satelital'}) fue hace ${flightAge} días.`:'No hay una observación satelital asociada al lote.',
         confidence:lastFlight?84:90,action:'Crear misión',page:'flights',
         reasons:[
-          lastFlight?`Último vuelo hace ${flightAge} días`:'Sin información NDVI reciente',
+          lastFlight?`Último dato ${lastFlight.vegetation_source_label||'satelital'} hace ${flightAge} días`:'Sin información NDVI reciente',
           ndvi==null?'No hay NDVI utilizable':`Último NDVI: ${ndvi.toFixed(2)}`,
           'El relevamiento mejora vigor, uniformidad y detección temprana'
         ]
@@ -128,8 +173,10 @@ export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadD
     const events=unifiedTimeline(lot), active=lotRecs(lot.id).filter(x=>x.status==='activa');
     const lastIrr=latestBy(state.irrigations||[],lot.id,['event_date','irrigation_date']);
     const lastCut=latestBy(state.cuts||[],lot.id,['cut_date']);
-    const lastFlight=latestBy(state.analyses||[],lot.id,['flight_date']);
-    const hydric=latestBy(state.hydricDailyBalances||[],lot.id,['balance_date']);
+    const lastFlight=latestVegetationObservation(lot.id);
+    const hydricDaily=latestBy(state.hydricDailyBalances||[],lot.id,['balance_date']);
+    const hydricCanonical=canonicalHydric(lot.id);
+    const hydric=hydricCanonical||hydricDaily;
     const grav=latestBy(state.gravimetricSamples||[],lot.id,['sample_date']);
     const score=agroScore({hydric,lastFlight,lastIrr,lastCut,grav,active,events});
     return {lot,events,active,lastIrr,lastCut,lastFlight,hydric,grav,score};
@@ -140,7 +187,7 @@ export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadD
     openModal(`<p class="eyebrow">SIMULADOR DE DECISIONES</p><h2>${escapeHtml(lot.name)}</h2>
       <form id="fieldBookSimulatorForm">
         <div class="form-grid">
-          <label>Escenario<select name="scenario"><option value="irrigation">Aplicar riego</option><option value="delay_cut">Atrasar corte</option><option value="rain">Lluvia prevista</option><option value="flight">Realizar vuelo Mavic</option></select></label>
+          <label>Escenario<select name="scenario"><option value="irrigation">Aplicar riego</option><option value="delay_cut">Atrasar corte</option><option value="rain">Lluvia prevista</option><option value="flight">Actualizar dato satelital</option></select></label>
           <label>Magnitud<input name="amount" type="number" min="0" step="1" value="20"></label>
           <label class="wide">Observación<textarea name="notes" placeholder="Ej.: riego de 20 mm hoy"></textarea></label>
         </div>
@@ -179,8 +226,10 @@ export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadD
     const events=unifiedTimeline(lot),docs=lotDocs(lot.id),recs=lotRecs(lot.id),active=recs.filter(x=>x.status==='activa');
     const lastIrr=latestBy(state.irrigations||[],lot.id,['event_date','irrigation_date']);
     const lastCut=latestBy(state.cuts||[],lot.id,['cut_date']);
-    const lastFlight=latestBy(state.analyses||[],lot.id,['flight_date']);
-    const hydric=latestBy(state.hydricDailyBalances||[],lot.id,['balance_date']);
+    const lastFlight=latestVegetationObservation(lot.id);
+    const hydricDaily=latestBy(state.hydricDailyBalances||[],lot.id,['balance_date']);
+    const hydricCanonical=canonicalHydric(lot.id);
+    const hydric=hydricCanonical||hydricDaily;
     const grav=latestBy(state.gravimetricSamples||[],lot.id,['sample_date']);
     const rain7=(state.weather?.daily?.precipitation_sum||[]).slice(0,7).reduce((s,x)=>s+n(x),0);
     const score=agroScore({hydric,lastFlight,lastIrr,lastCut,grav,active,events});
@@ -190,7 +239,7 @@ export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadD
       <div class="field-book-hero"><div><p class="eyebrow">GEMELO DIGITAL DEL LOTE · INTELIGENCIA AGRONÓMICA</p><h2>${escapeHtml(lot.name)}</h2><p>${escapeHtml(cropOf(lot))} · ${hectaresOf(lot).toLocaleString('es-AR',{maximumFractionDigits:2})} ha</p></div><div class="field-book-actions"><select id="fieldBookLotSelect">${state.lots.map(x=>`<option value="${x.id}" ${x.id===lot.id?'selected':''}>${escapeHtml(x.name)}</option>`).join('')}</select><button class="primary fieldBookNewEvent">+ Evento</button><button class="secondary fieldBookNewRec">+ Recomendación</button><button class="secondary fieldBookSimulator">🤖 Simular decisión</button><button class="secondary fieldBookNewDoc">+ Documento</button></div></div>
       <div class="field-book-tabs"><button class="active" data-field-tab="overview">Resumen</button><button data-field-tab="timeline">Línea de tiempo</button><button data-field-tab="precision">Precisión</button><button data-field-tab="analytics">Análisis</button><button data-field-tab="compare">Comparador</button><button data-field-tab="documents">Documentos</button></div>
       <section class="field-book-tab active" data-field-panel="overview">
-        <div class="field-book-kpis"><article><span class="kpi-icon">💧</span><div><small>Balance hídrico</small><b>${hydric?.soil_water_mm!=null?`${n(hydric.soil_water_mm).toFixed(0)} mm`:'Sin cálculo'}</b><span>${hydric?dateOnly(hydric.balance_date):'Falta calcular'}</span></div></article><article><span class="kpi-icon">🌿</span><div><small>NDVI reciente</small><b>${lastFlight?.ndvi_avg!=null?n(lastFlight.ndvi_avg).toFixed(2):'Sin vuelo'}</b><span>${lastFlight?dateOnly(lastFlight.flight_date):'Falta relevamiento'}</span></div></article><article><span class="kpi-icon">🌧️</span><div><small>Lluvia pronosticada</small><b>${rain7.toFixed(1)} mm</b><span>Próximos 7 días</span></div></article><article><span class="kpi-icon">🤖</span><div><small>Recomendaciones activas</small><b>${active.length}</b><span>${active.filter(x=>['alta','critica'].includes(x.priority)).length} prioritarias</span></div></article></div>
+        <div class="field-book-kpis"><article><span class="kpi-icon">💧</span><div><small>Balance hídrico</small><b>${hydricCanonical?.occupancy!=null?`${n(hydricCanonical.occupancy).toFixed(1)}% disponible`:hydricDaily?.soil_water_mm!=null?`${n(hydricDaily.soil_water_mm).toFixed(0)} mm`:'Sin cálculo'}</b><span>${hydricCanonical?`${escapeHtml(String(hydricCanonical.status||'Estado hídrico'))} · motor canónico`:hydricDaily?dateOnly(hydricDaily.balance_date):'Falta calcular'}</span></div></article><article><span class="kpi-icon">🌿</span><div><small>NDVI reciente</small><b>${lastFlight?.ndvi_avg!=null?n(lastFlight.ndvi_avg).toFixed(lastFlight.vegetation_source==='satellite'?3:2):'Sin dato'}</b><span>${lastFlight?`${escapeHtml(lastFlight.vegetation_source_label||'Satelital')} · ${dateOnly(lastFlight.vegetation_date||lastFlight.flight_date)}`:'Falta relevamiento'}</span></div></article><article><span class="kpi-icon">🌧️</span><div><small>Lluvia pronosticada</small><b>${rain7.toFixed(1)} mm</b><span>Próximos 7 días</span></div></article><article><span class="kpi-icon">🤖</span><div><small>Recomendaciones activas</small><b>${active.length}</b><span>${active.filter(x=>['alta','critica'].includes(x.priority)).length} prioritarias</span></div></article></div>
         <section class="panel agro-score-card"><div class="agro-score-main"><div><p class="eyebrow">AGRO SCORE</p><div class="agro-score-number">${score.total}<small>/1000</small></div><p class="muted">Índice orientativo calculado con la información disponible del lote.</p></div><div class="agro-score-ring" style="--score:${score.total/10}"><span>${score.total>=800?'Excelente':score.total>=650?'Bueno':score.total>=500?'Atención':'Crítico'}</span></div></div><div class="agro-score-bars">${[['Estado hídrico',score.hydric],['Vigor',score.vigor],['Manejo',score.manejo],['Calidad de datos',score.datos],['Riesgo',score.riesgo]].map(([label,val])=>`<div><span>${label}</span><b>${val}</b><i><em style="width:${val}%"></em></i></div>`).join('')}</div></section>
         <section class="panel agronomic-intelligence-card">
           <div class="panel-title"><div><p class="eyebrow">CENTRO DE INTELIGENCIA AGRONÓMICA</p><h3>Qué hacer ahora</h3><p class="muted">Prioridades calculadas con los datos disponibles. Confirmá siempre la decisión en campo.</p></div><span class="pill ${decisions.length?'warn':'ok'}">${decisions.length} acciones</span></div>
@@ -206,13 +255,13 @@ export function createFieldBookModule({state,supabase,escapeHtml,openModal,loadD
         </div>
       </section>
       <section class="field-book-tab" data-field-panel="timeline"><section class="panel"><div class="panel-title"><div><p class="eyebrow">AGRO TIMELINE</p><h3>Historia completa del lote</h3></div><span class="pill">${events.length} eventos</span></div><div class="field-book-timeline field-book-timeline-full">${events.length?events.map(eventCard).join(''):'<p class="empty">Todavía no hay eventos.</p>'}</div></section></section>
-      <section class="field-book-tab" data-field-panel="precision"><div class="field-book-gallery">${(state.analyses||[]).filter(x=>x.lot_id===lot.id).length?(state.analyses||[]).filter(x=>x.lot_id===lot.id).map(a=>`<article class="panel field-book-analysis"><div class="field-book-analysis-cover">🛰️</div><small>${dateOnly(a.flight_date)}</small><h3>Vuelo multiespectral</h3><div class="field-book-analysis-metrics"><span>NDVI <b>${a.ndvi_avg!=null?n(a.ndvi_avg).toFixed(2):'—'}</b></span><span>NDRE <b>${a.ndre_avg!=null?n(a.ndre_avg).toFixed(2):'—'}</b></span><span>NDMI <b>${a.ndmi_avg!=null?n(a.ndmi_avg).toFixed(2):'—'}</b></span></div></article>`).join(''):'<section class="panel"><p class="empty">No hay vuelos o imágenes asociados a este lote.</p></section>'}</div></section>
+      <section class="field-book-tab" data-field-panel="precision"><div class="field-book-gallery">${vegetationHistory(lot.id).length?vegetationHistory(lot.id).map(a=>{const q=satelliteDataStatus(a);return `<article class="panel field-book-analysis">${satelliteCover(a)}<small>${dateOnly(a.vegetation_date)}</small><h3>${escapeHtml(a.vegetation_source_label||'Satelital')}</h3><div class="field-book-analysis-metrics"><span>NDVI <b>${a.ndvi_avg!=null?n(a.ndvi_avg).toFixed(a.vegetation_source==='satellite'?3:2):'—'}</b></span><span>NDRE <b>${a.ndre_avg!=null?n(a.ndre_avg).toFixed(a.vegetation_source==='satellite'?3:2):'—'}</b></span><span>NDMI <b>${a.ndmi_avg!=null?n(a.ndmi_avg).toFixed(a.vegetation_source==='satellite'?3:2):'—'}</b></span></div>${!q.valid?`<p class="muted satellite-no-data">${escapeHtml(q.label)}</p>`:''}</article>`}).join(''):'<section class="panel"><p class="empty">No hay observaciones satelitales asociadas a este lote.</p></section>'}</div></section>
       <section class="field-book-tab" data-field-panel="analytics">
         <div class="analytics-grid">
-          <section class="panel"><div class="panel-title"><div><p class="eyebrow">EVOLUCIÓN HÍDRICA</p><h3>Agua disponible</h3></div><span class="pill">${(state.hydricDailyBalances||[]).filter(x=>x.lot_id===lot.id).length} registros</span></div>${sparkline((state.hydricDailyBalances||[]).filter(x=>x.lot_id===lot.id).sort((a,b)=>new Date(a.balance_date)-new Date(b.balance_date)).map(x=>x.soil_water_mm))}</section>
-          <section class="panel"><div class="panel-title"><div><p class="eyebrow">VIGOR</p><h3>Evolución NDVI</h3></div><span class="pill">${(state.analyses||[]).filter(x=>x.lot_id===lot.id).length} vuelos</span></div>${sparkline((state.analyses||[]).filter(x=>x.lot_id===lot.id).sort((a,b)=>new Date(a.flight_date)-new Date(b.flight_date)).map(x=>x.ndvi_avg),{min:0,max:1})}</section>
+          <section class="panel"><div class="panel-title"><div><p class="eyebrow">EVOLUCIÓN HÍDRICA</p><h3>Agua disponible</h3></div><span class="pill">${hydricHistory(lot.id).length||(state.hydricDailyBalances||[]).filter(x=>x.lot_id===lot.id).length} registros</span></div>${hydricHistory(lot.id).length?sparkline(hydricHistory(lot.id).slice(-14).map(x=>x.occupancy),{min:0,max:100}):sparkline((state.hydricDailyBalances||[]).filter(x=>x.lot_id===lot.id).sort((a,b)=>new Date(a.balance_date)-new Date(b.balance_date)).map(x=>x.soil_water_mm))}</section>
+          <section class="panel"><div class="panel-title"><div><p class="eyebrow">VIGOR</p><h3>Evolución NDVI</h3></div><span class="pill">${vegetationHistory(lot.id).length} observaciones</span></div>${sparkline(vegetationHistory(lot.id).slice().sort((a,b)=>new Date(a.vegetation_date)-new Date(b.vegetation_date)).map(x=>x.ndvi_avg),{min:0,max:1})}</section>
           <section class="panel"><div class="panel-title"><div><p class="eyebrow">PRODUCCIÓN</p><h3>Rollos por corte</h3></div><span class="pill">${(state.cuts||[]).filter(x=>x.lot_id===lot.id).length} cortes</span></div>${sparkline((state.cuts||[]).filter(x=>x.lot_id===lot.id).sort((a,b)=>new Date(a.cut_date)-new Date(b.cut_date)).map(x=>x.bales||x.rolls))}</section>
-          <section class="panel automation-card"><div class="panel-title"><div><p class="eyebrow">AUTOMATIZACIÓN</p><h3>Gemelo sincronizado</h3></div><span class="pill ok">Activo</span></div><p class="muted">Riegos, cortes, vuelos y muestras gravimétricas se incorporan automáticamente a la historia del lote.</p><div class="automation-sources"><span>💧 Riegos</span><span>✂️ Cortes</span><span>🛰️ Vuelos</span><span>🧪 Muestras</span></div><small>Requiere ejecutar la migración 022 incluida en esta entrega.</small></section>
+          <section class="panel automation-card"><div class="panel-title"><div><p class="eyebrow">AUTOMATIZACIÓN</p><h3>Gemelo sincronizado</h3></div><span class="pill ok">Activo</span></div><p class="muted">Riegos, cortes, observaciones satelitales y muestras gravimétricas se incorporan automáticamente a la historia del lote.</p><div class="automation-sources"><span>💧 Riegos</span><span>✂️ Cortes</span><span>🗺️ Sentinel-2</span><span>🧪 Muestras</span></div><small>Requiere ejecutar la migración 022 incluida en esta entrega.</small></section>
           <section class="panel decision-simulator-card"><p class="eyebrow">PLANIFICACIÓN</p><h3>Simulador de decisiones</h3><p class="muted">Probá escenarios de riego, lluvia, corte o relevamiento y compará su efecto orientativo.</p><button class="primary fieldBookSimulator">Abrir simulador</button></section>
         </div>
       </section>

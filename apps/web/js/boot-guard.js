@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = '92.1.0';
+  const VERSION = '92.2.6';
   const show = (title, detail) => {
     let box = document.getElementById('lmos-boot-error');
     if (!box) {

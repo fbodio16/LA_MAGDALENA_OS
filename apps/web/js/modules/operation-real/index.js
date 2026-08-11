@@ -95,7 +95,7 @@ export function createOperationRealModule({
           <article class="${lots.length?'done':''}"><span>${lots.length?'✓':'1'}</span><div><b>Confirmar los 13 lotes</b><p>Superficie, cultivo, variedad y polígono real.</p></div><button class="secondary operationGo" data-page="lots">Abrir</button></article>
           <article class="${irrigations?'done':''}"><span>${irrigations?'✓':'2'}</span><div><b>Cargar el primer riego real</b><p>Fecha, lote, horas y milímetros aplicados.</p></div><button class="secondary operationGo" data-page="irrigation">Abrir</button></article>
           <article class="${cuts?'done':''}"><span>${cuts?'✓':'3'}</span><div><b>Cargar el historial de cortes</b><p>Rollos, peso, calidad y fecha por lote.</p></div><button class="secondary operationGo" data-page="production">Abrir</button></article>
-          <article class="${analyses?'done':''}"><span>${analyses?'✓':'4'}</span><div><b>Incorporar el primer vuelo Mavic</b><p>NDVI, NDRE, NDMI e informe asociado.</p></div><button class="secondary operationGo" data-page="precision-center">Abrir</button></article>
+          <article class="${analyses?'done':''}"><span>${analyses?'✓':'4'}</span><div><b>Incorporar el primer dato satelital</b><p>NDVI, NDRE, NDMI e informe asociado.</p></div><button class="secondary operationGo" data-page="precision-center">Abrir</button></article>
         </div>
       </section>
     </section>`;
@@ -118,7 +118,7 @@ export function createOperationRealModule({
           <label>Peso por rollo (kg)<input name="standard_bale_weight_kg" type="number" step=".1" value="${n(p.standard_bale_weight_kg||500)}"></label>
           <label>Riego<input name="irrigation_system" value="${esc(p.irrigation_system||'Riego por goteo')}"></label>
           <label>Estación meteorológica<input name="weather_station_name" value="${esc(p.weather_station_name||'')}"></label>
-          <label>Drone multiespectral<input name="primary_drone" value="${esc(p.primary_drone||'DJI Mavic 3 Multispectral')}"></label>
+          <label>Drone multiespectral<input name="primary_drone" value="${esc(p.primary_drone||'Relevamiento de precisión')}"></label>
           <label>Drone de aplicación<input name="spraying_drone" value="${esc(p.spraying_drone||'DJI Agras T100')}"></label>
           <label class="wide">Notas<textarea name="notes">${esc(p.notes||'')}</textarea></label>
         </div>

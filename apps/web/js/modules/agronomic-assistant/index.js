@@ -72,7 +72,7 @@ export function createAgronomicAssistantModule({
     }
     if(!lastFlight || flightAge>14){
       alerts.push({level:'media',icon:'🛰️',title:'Información de vigor desactualizada',detail:lastFlight?`Último vuelo hace ${flightAge} días.`:'No hay vuelos asociados.'});
-      actions.push({priority:'media',title:'Programar vuelo Mavic',detail:'Actualizar NDVI, NDRE y uniformidad del lote.',page:'precision-center'});
+      actions.push({priority:'media',title:'Actualizar dato satelital',detail:'Actualizar NDVI, NDRE y uniformidad del lote.',page:'precision-center'});
     }
     if(!grav || gravAge>30){
       alerts.push({level:'media',icon:'🧪',title:'Calibración gravimétrica pendiente',detail:grav?`Última muestra hace ${gravAge} días.`:'Sin muestras registradas.'});

@@ -23,7 +23,7 @@ function lotOperationalData(lot){
   if(score>=4){stateLabel='Prioridad alta';stateClass='bad'}
   else if(score>=2){stateLabel='Revisar';stateClass='warn'}
   const timeline=[
-    ...analyses.slice(0,3).map(x=>({date:x.flight_date,type:'Vuelo Mavic',detail:`NDVI ${number(x.ndvi_avg,2)}`})),
+    ...analyses.slice(0,3).map(x=>({date:x.flight_date,type:'Relevamiento cargado',detail:`NDVI ${number(x.ndvi_avg,2)}`})),
     ...irrigations.slice(0,3).map(x=>({date:x.event_date||x.irrigation_date,type:'Riego',detail:`${number(x.millimeters||x.mm||x.water_mm||0,1)} mm`})),
     ...cuts.slice(0,3).map(x=>({date:x.cut_date,type:'Corte',detail:`${number(x.bales||x.rolls||0)} rollos`})),
     ...orders.slice(0,3).map(x=>({date:x.order_date,type:'Orden T100',detail:x.status||x.application_type||'Planificada'})),
